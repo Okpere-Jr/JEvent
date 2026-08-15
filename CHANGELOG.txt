@@ -1,0 +1,20 @@
+Version 1.0.0 : BASE Version
+
+    Version 1.0.1: Added
+        => 'Hot Plugging' Support
+        => Play-Station Friendly Labels
+        => Added partial configuration of the keymap
+        => Introduced the doublify() function
+
+   Version 1.0.2: Added
+        => Added all JEvent features to the default __init__.py
+	=> Formatted the in-file documentations
+
+   Version 1.0.3: Added
+	=> Updated the README
+
+   Version 1.0.4: TBD
+
+
+
+  Version 1.1.0: TBD
