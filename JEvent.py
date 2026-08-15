@@ -7,17 +7,21 @@ import warnings
 
 
 buttons = ['B','A','X','Y','L1','R1','-','+','LPad',"RPad",'HOME','LPad X','LPad Y','RPad X','RPad Y', 'L2','R2']
-keymap =['space','e','r','q','shift_L','x','c','z','Tab','Return','Escape','ctrl_L','m','a','d','w','s','j','l','i','k','1','2','3','4','Left','Right','Up','Down']
+keymap =['space','e','r','q','shift_L','x','c','z','Tab','Return','Escape','ctrl_L','m','a','d','s','w','j','l','k','i','1','2','3','4','Left','Right','Up','Down']
 
 
 class JEvent:
     """
     Stands for: (Joshua Event / Joystick Event), Whichever you choose.
-    A simple type which makes it easy to process Gamepad Events with features for integration with Tkinter.
-    Stores the Gamepad Interaction which occured, if a key was pressed or released, an the state as a number from the range (0,1) [The Origin is Bottom-Left]
-    ==> Also includes a keysym value, so a classic Tkinter-based function can process JEvents like Tkinter events.
+    A simple type which makes it easy to process Gamepad Events with features for
+        integration with Tkinter.
+    Stores the Gamepad Interaction which occured, if a key was pressed or released,
+        and the state as a number from the range (0,1) [The Origin is Bottom-Left]
+    ==> Also includes a keysym value, so a classic Tkinter-based function can
+            process JEvents like Tkinter events.
         The tkinter keymap can be changed with the configure function.
-    ==> Has a self.isnt()  -handy for checking if 2 JEvents are different [And by implication if a button has been pressed]
+    ==> Has a self.isnt()  -handy for checking if 2 JEvents are different
+            [And by implication if a button has been pressed]
     ==> Has a self.eval_keys() to re-evaluate the keysym if any values change.
     """
     def __init__(self,key='',type=None,value=0):
@@ -26,14 +30,14 @@ class JEvent:
         self.value = value
         self.keysym = ''
         self.eval_keys()
-        
+
     def isnt (self,event2):
         if self.type == event2.type:
             if self.key == event2.key:
                 if self.value == event2.value:
                     return False
         return True
-    
+
     @property
     def pressed(self):
         return self.type == "<KeyPress>"
@@ -41,20 +45,19 @@ class JEvent:
     @property
     def released(self):
         return self.type == "<KeyRelease>"
-    
+
     def __repr__(self):
         return f"JEvent({self.key!r}, {self.type!r}, {self.value!r})"
-    
+
     def __eq__(self, other):
         return (
             self.type == other.type and
-            self.key == other.key and
-            self.value == other.value
+            self.key == other.key
         )
-    
+
     def __bool__(self):
         return self.isnt(JEvent())
-   
+
     def eval_keys(self):
         global keymap
         if self.key == 'A':
@@ -83,62 +86,66 @@ class JEvent:
             self.keysym = keymap[11]
         elif self.key == 'RPad':
             self.keysym = keymap[12]
-        
+
         # ===== ANALOG STICKS (with threshold) =====
         elif self.key == 'LPad X':
-            if self.value < -0.5: self.keysym = keymap[13]
+            if self.value < 0.5: self.keysym = keymap[13]
             elif self.value > 0.5: self.keysym = keymap[14]
             else: self.keysym = None
         elif self.key == 'LPad Y':
-            if self.value < -0.5: self.keysym = keymap[15]
+            if self.value < 0.5: self.keysym = keymap[15]
             elif self.value > 0.5: self.keysym = keymap[16]
             else: self.keysym = None
         elif self.key == 'RPad X':
-            if self.value < -0.5: self.keysym = keymap[17]
+            if self.value < 0.5: self.keysym = keymap[17]
             elif self.value > 0.5: self.keysym = keymap[18]
             else: self.keysym = None
         elif self.key == 'RPad Y':
-            if self.value < -0.5: self.keysym = keymap[19]
+            if self.value < 0.5: self.keysym = keymap[19]
             elif self.value > 0.5: self.keysym = keymap[20]
             else: self.keysym = None
-        
+
         elif self.key == 'DPad':
             x, y = self.value
-            
+
             # Diagonals (both axes active)
-            if x < -0.5 and y < -0.5:
+            if x < -0 and y < -0:
                 self.keysym = keymap[21]      # Up-Left (or use 'q' / '7')
-            elif x > 0.5 and y < -0.5:
+            elif x > 0 and y < -0:
                 self.keysym = keymap[22]      # Up-Right (or use 'e' / '9')
-            elif x < -0.5 and y > 0.5:
+            elif x < -0 and y > 0:
                 self.keysym =   keymap[23]     # Down-Left (or use 'z' / '1')
-            elif x > 0.5 and y > 0.5:
+            elif x > 0 and y > 0:
                 self.keysym = keymap[24]     # Down-Right (or use 'c' / '3')
             # Cardinals
-            elif x < -0.5:
+            elif x < -0:
                 self.keysym = keymap[25]      # Left
-            elif x > 0.5:
+            elif x > 0:
                 self.keysym = keymap[26]      # Right
-            elif y < -0.5:
+            elif y > -0:
                 self.keysym = keymap[27]      # Up
-            elif y > 0.5:
+            elif y < 0:
                 self.keysym = keymap[28]      # Down
             else:
-                self.keysym = None          
+                self.keysym = None
 
 def configure(keyboard_map):
     global keymap
     '''
     Changes the keysyms for events binded.
-    The keyboard_map sould be an array corresponding to which keys/events should be binded to presses on the gamepad.
+    The keyboard_map sould be an array corresponding to which keys/events
+        should be binded to presses on the gamepad.
     The events/keys they map to, in order, are:
-        ['B/⭕','A/❌ ','X/☐','Y/△️','L1','R1','L2','R2','-','+','HOME','LPad',"RPad",'LPad Left','LPad Right','LPad Up','LPad Down','RPad Left','RPad Right','RPad Up','RPad Down','DPad NW','DPad NE','DPad SW','DPad SE','DPad W','DPad E','DPad N','DPad S']
+        ['B/⭕','A/❌ ','X/☐','Y/△️','L1','R1','L2','R2','-','+',
+        'HOME','LPad',"RPad",'LPad Left','LPad Right','LPad Down',
+        'LPad Up','RPad Left','RPad Right','RPad Down','RPad Up',
+     DPad NW','DPad NE','DPad SW','DPad SE','DPad W','DPad E','DPad N','DPad S']
     '''
     if isinstance(keyboard_map,dict):
         for elem in list(keyboard_map):
             keymap[elem] = keyboard_map[elem]
     keymap = list(keyboard_map)
-    
+
 def on_pad_press(event):
     btn=''
     typ=None
@@ -152,7 +159,7 @@ def on_pad_press(event):
         btn = buttons[event.button]
         val = 0
     if event.type == pygame.JOYAXISMOTION:
-        typ = "<KeyPress>"       
+        typ = "<KeyPress>"
         val = (event.value + 1)/2
         if (event.axis == 1) or (event.axis == 3):
             val = 1 - val
@@ -163,43 +170,62 @@ def on_pad_press(event):
         if (event.axis == 4) or (event.axis == 5):
             val = ceil(val)
             if val == 0:
-                typ = '<KeyRelease>'       
+                typ = '<KeyRelease>'
         btn = buttons[event.axis+11]
     if event.type == pygame.JOYHATMOTION:
         typ = "<KeyPress>"
         btn = "DPad"
         if event.value == (0,0):
             typ = '<KeyRelease>'
-        val =  event.value   
-    return JEvent(btn,typ,val)    
+        val =  event.value
+    return JEvent(btn,typ,val)
 
-def mainloop(event_func, condition = (lambda : False) ):
+def mainloop(event_func, condition=lambda: False, verbose=True):
     '''
-    condition -> A function to check when the main/'game' loop should exit
-    event_func -> A function called with the latest available gamepad event.
-    Call event_func(event) for each Event/Button Press from a single gamepad until condition() returns False
+    Run event_func(event) for each event until condition() is True
     '''
     pygame.init()
     pygame.joystick.init()
-    if pygame.joystick.get_count() == 0:
-        warnings.warn("NO gamepad detected.")#,category=ResourceWarning)
-        while not condition() :
-            if pygame.joystick.get_count() != 0:
-                break
-            event_func(JEvent())
-    gamepad = pygame.joystick.Joystick(0)
-    event = pygame.event.get()[-1]
-    while not condition() :
-        try:
-            if pygame.joystick.get_count() == 0:
-                warnings.warn("NO gamepad detected.")
-                mainloop(event_func,condition)
-            event =  pygame.event.get()[-1]
-            jevent = on_pad_press(event)
-            event_func(jevent)
-        except IndexError as e:
-            pass # No button was pressed
 
+    gamepad = None
+
+    while not condition():
+        # Wait for a gamepad
+        if pygame.joystick.get_count() == 0:
+            if gamepad is not None:
+                gamepad = None
+
+            if verbose:
+                warnings.warn("NO gamepad detected.")
+
+            pygame.event.pump()
+            event_func(JEvent())
+            continue
+
+        # Connect to the gamepad if necessary
+        if gamepad is None:
+            gamepad = pygame.joystick.Joystick(0)
+            if pygame.joystick.get_count() != 0 and verbose:
+                warnings.warn("New gamepad detected.")
+        try:
+            events = pygame.event.get()
+
+            if not events:
+                event_func(JEvent())
+                continue
+
+            #for event in events:
+               # if event.type in (
+                  #  pygame.JOYBUTTONDOWN,
+                 #   pygame.JOYBUTTONUP,
+                 #   pygame.JOYAXISMOTION,
+                 #   pygame.JOYHATMOTION
+                #):
+            event_func(on_pad_press(events[-1]))
+
+        except pygame.error:
+            # Device disappeared between checking and reading it
+            gamepad = None
 
 def doublify(root):
     """Return the actual function object bound to <KeyPress>"""
@@ -215,12 +241,12 @@ def doublify(root):
     def mask():
         callback()
         root.update()
-    mainloop(mask) 
+    mainloop(mask)
 
 if __name__ == "__main__":
     print('JE to TK loaded successfully')
     sentinel = JEvent()
-    
+
     def test(event):
         global sentinel
         if event.isnt(JEvent()):
